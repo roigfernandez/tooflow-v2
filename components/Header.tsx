@@ -77,7 +77,7 @@ export default function Header() {
             {/* Toggle tema */}
             <button
               onClick={toggleTheme}
-              className="p-1.5 md:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+              className="p-1.5 md:p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               title={theme === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
             >
               <i className={`${theme === 'dark' ? 'ri-sun-line' : 'ri-moon-line'} text-base sm:text-lg`}></i>

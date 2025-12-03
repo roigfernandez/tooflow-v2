@@ -2,7 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import TaskDetailHeader from '@/components/TaskDetailHeader';
@@ -47,7 +47,6 @@ interface Task {
 
 export default function TaskDetailView({ taskId }: TaskDetailViewProps) {
   const router = useRouter();
-  const supabase = createClient();
 
   const [task, setTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -92,7 +91,16 @@ export default function TaskDetailView({ taskId }: TaskDetailViewProps) {
         return;
       }
 
-      setTask(data);
+      // Transform the data to match the Task interface
+      if (data) {
+        const transformedData: Task = {
+          ...data,
+          project: Array.isArray(data.project) ? data.project[0] : data.project,
+          assignee: Array.isArray(data.assignee) ? data.assignee[0] : data.assignee,
+          creator: Array.isArray(data.creator) ? data.creator[0] : data.creator,
+        };
+        setTask(transformedData);
+      }
     } catch (error) {
       console.error('Error cargando tarea:', error);
     } finally {
@@ -184,7 +192,7 @@ export default function TaskDetailView({ taskId }: TaskDetailViewProps) {
   if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Header title="Cargando..." showSearch={false} />
+        <Header />
         <main className="flex-1 px-4 py-6 pb-24 md:pb-6">
           <div className="max-w-4xl mx-auto animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
@@ -203,7 +211,7 @@ export default function TaskDetailView({ taskId }: TaskDetailViewProps) {
   if (!task) {
     return (
       <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Header title="Tarea no encontrada" showSearch={false} />
+        <Header />
         <main className="flex-1 px-4 py-6 pb-24 md:pb-6 flex items-center justify-center">
           <div className="max-w-md mx-auto text-center">
             <div className="w-16 h-16 flex items-center justify-center mx-auto mb-4">
@@ -230,7 +238,7 @@ export default function TaskDetailView({ taskId }: TaskDetailViewProps) {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header title="Detalle de Tarea" showSearch={false} />
+      <Header />
 
       <main className="flex-1 px-4 py-6 pb-24 md:pb-6">
         <div className="max-w-4xl mx-auto space-y-6">
@@ -517,8 +525,8 @@ export default function TaskDetailView({ taskId }: TaskDetailViewProps) {
                       size,
                       type: 'application/octet-stream',
                       created_at: new Date().toISOString(),
-                      created_by: user!.id,
-                      created_by_name: user!.user_metadata?.full_name || 'Usuario'
+                      created_by: currentUserId || 'unknown',
+                      created_by_name: 'Usuario'
                     };
                     setAttachments(prev => [...prev, newAttachment]);
                     setShowAttachmentUpload(false);
